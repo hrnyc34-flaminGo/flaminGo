@@ -5,6 +5,20 @@
 
 # Flamingo API
 
+## Table of Contents
+
+- [Login](#login)
+
+- [Rooms](#rooms)
+
+- [Reservations](#reservations)
+
+- [Tasks](#tasks)
+
+- [Employees](#employees)
+
+- [Timesheets](#timesheets)
+
 ## Login
 
 ### Authenticate User
@@ -49,7 +63,7 @@ Parameters :
 { "user": {req.user(TBD)} }
 ```
 
-## Room Routes
+## Rooms
 ### List Rooms
 `GET /rooms` Retrives a list of rooms. By default all roms are returned.
 
@@ -280,7 +294,7 @@ Response
 
 ```
 
-## Reservation Routes
+## Reservations
 
 ### Inquire Room Availability
 `GET /reservations/availability/:date` Will return the quantity of available rooms on the supplied date, broken down by room type.
@@ -422,7 +436,7 @@ Response
   }
 ```
 
-## Task Routes
+## Tasks
 
 ### List Tasks
 `GET /tasks`  Returns a list of tasks matching the search criteria. By default all incomplete tasks are returned
@@ -528,7 +542,7 @@ Parameters
 | location | string | body | [Optional] Room number or name of location |
 | department | string | body | [Optional] Selection for which Department this task is for |
 
-## Employee Routes
+## Employees
 
 ### List Employees
 `GET /employees` Will return a list of all employees.
