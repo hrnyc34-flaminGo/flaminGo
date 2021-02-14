@@ -1,18 +1,17 @@
 <!--
-| Parameter | Type | Description |
-| ---------- | ---- | ----------- |
-|  |  |  | -->
-
-
+| Parameter | Type | In | Description |
+| --------- | ---- | --- | ----------- |
+|  |  |  |  | -->
 
 # Flamingo API
 
 ## Login
 
 ### Authenticate User
-`POST /authenticate-user`  Sends User Information
+`POST employees/authenticate-user`  Sends User Information
 
 Response
+
 `Status: 200 OK`
 
 Bad Request Response
@@ -21,173 +20,282 @@ Bad Request Response
 Internal Server Error Response
 `Status: 500 INTERNAL_SERVER_ERROR`
 
-Body Parameters :
-| Parameter | Type | Description |
-| ---------- | ---- | ----------- |
-| username | string | String of username |
-| password | string | String of hashed password |
+Parameters
+| Parameter | Type | In | Description |
+| --------- | ---- | --- | ----------- |
+| username | string | body | String of username |
+| password | string | body | String of hashed password |
 
-```
-{}
-```
-
-### Create User
-`POST /create-user`  Creates a New User
-
-Response
-`Status: 200 OK`
-
-Bad Request Response
-`Status: 400 BAD_REQUEST`
-
-Internal Server Error Response
-`Status: 500 INTERNAL_SERVER_ERROR`
-
-Body Parameters :
-| Parameter | Type | Description |
-| ---------- | ---- | ----------- |
-| username | string | String of username |
-| password | string | String of hashed password |
-
-```
-{}
+```JSON
+{TBD}
 ```
 
 ### Validate Token
-`GET /validate-token`
+`GET employees/validate-token`
 
 Response
+
 `Status: 200 OK`
 
 Unauthorized Response
 `Status: 401 UNAUTHORIZED`
 
-Body Parameters :
-| Parameter | Type | Description |
-| ---------- | ---- | ----------- |
-| username | string | String of username |
+Parameters :
+| Parameter | Type | In | Description |
+| --------- | ---- | --- | ----------- |
+| username | string | ? | String of username |
 
-```
-{ user: req.user }
+```JSON
+{ "user": {req.user(TBD)} }
 ```
 
 ## Room Routes
 ### List Rooms
-`GET /rooms` Retrives a list of all rooms
+`GET /rooms` Retrives a list of rooms. By default all roms are returned.
 
-Body Parameters
+Parameters
 
-| Parameter | Type | Description |
-| ---------- | ---- | ----------- |
-| roomNumber | string | [Optional] Room number |
-| roomType | string | [Optional] Room type |
-| isClean | boolean | [Optional] Current cleanliness status of room |
-| isOccupied | boolean | [Optional] Current occupancy status of room |
+| Parameter | Type | In | Description |
+| --------- | ---- | --- | ----------- |
+| roomnumber | string | query | [Optional] Room number |
+| floornumber | number | query | [Optional] Floor number |
+| roomType | string | query | [Optional] Room type |
+| isClean | boolean | query | [Optional] Current cleanliness status of room |
+| isOccupied | boolean | query | [Optional] Current occupancy status of room |
+
+*NOTE: Each additional parameter is treated as an AND operation narrowing the search*
 
 Response
+
 `Status: 200 OK`
 
+```JSON
+[
+  {
+    "_id": "507c7f79bcf86cd7994f6c0e",
+    "roomNumber": "110",
+    "floorNumber": 1,
+    "roomType": "Double Queen",
+    "amenities": [
+      "Non-Smoking",
+      "Pool Side",
+      "Mini-Fridge"
+    ],
+    "isClean":true,
+    "isOccupied": true,
+    "currentGuests": [
+      "Bob Palmer",
+      "Alice Palmer",
+      "Bobby Jr Palmer"
+    ],
+    "tasks": [
+      {
+        "_id":"5febcfb988e5d76e417427c6",
+        "taskTitle": "Daily cleaning",
+        "department":"Housekeeping"
+      },
+      {
+        "_id":"5febcfc488e5d76e417427c7",
+        "taskTitle": "Shower needs new caulk",
+        "department":"Maintenance"
+      },
+      ...
+    ]
+  }, 
+  {
+    "_id": "507c7f79bcf86cd7494f6a9b",
+    "roomNumber": "111",
+    ...
+  },
+  ...
+]
 ```
-[All the room objects]
-```
+
 ### Add A Room
 `POST /rooms` Add a new room to the room list
 
-Body Parameters
+Parameters
 
-| Parameter | Type | Description |
-| ---------- | ---- | ----------- |
-| roomNumber | string | String of room number |
-| floorNumber | number | [Optional] Floor number |
-| roomType | string | Room type of new room |
-| amenities | array | [Optional] Array with room amenities |
+| Parameter | Type | In | Description |
+| --------- | ---- | --- | ----------- |
+| roomnumber | string | body | String of room number |
+| floornumber | number | body | [Optional] Floor number |
+| roomType | string | body | Room type of new room |
+| amenities | array | body | [Optional] Array with room amenities |
 
 Response
-`Status: 200 OK`
 
-```
-{newly created room if possible?}
+`Status: 201 CREATED`
+
+```JSON
+{
+  "_id": "507c7f79bcf86cd7994f6c0e",
+  "roomNumber": "110",
+  "floorNumber": 1,
+  "roomType": "Double Queen",
+  "price": 150.00,
+  "amenities": [
+    "Non-Smoking",
+    "Pool Side",
+    "Mini-Fridge"
+  ]
+}
 ```
 
 ### Edit A Room
-`PUT /rooms/:roomId` Edit a specific room
+`PUT /rooms/:room_id` Edit a specific room
 
-Body Parameters
+Parameters
 
-| Parameter | Type | Description |
-| ---------- | ---- | ----------- |
-| :roomId | string | String representation of mongo _id |
-| roomNumber | string | [Optional] String of room number |
-| floorNumber | number | [Optional] Floor number |
-| roomType | string | [Optional] Room type of new room |
-| amenities | array | [Optional] Array with room amenities (Will completely overide the old array of amenities) |
+| Parameter | Type | In | Description |
+| --------- | ---- | --- | ----------- |
+| :room_id | string | path | String representation of mongo _id |
+| roomnumber | string | body | [Optional] String of room number |  |
+| floornumber | number | body | [Optional] Floor number |  |
+| roomType | string | body | [Optional] Room type of new room |
+| amenities | array | body | [Optional] Array with room amenities (Will completely overide the old array of amenities) |
 
 Response
-`Status: 201 Created`
+
+`Status: 201 CREATED`
+
+```JSON
+{
+  "_id": "507c7f79bcf86cd7994f6c0e",
+  "roomNumber": "110",
+  "floorNumber": 1,
+  "roomType": "Double Queen",
+  "amenities": [
+    "Non-Smoking",
+    "Pool Side",
+    "Mini-Fridge"
+  ]
+}
+```
 
 ### Get Specific Room
-`GET /rooms/:roomId` Retrives a specific room by its id
+`GET /rooms/:room_id` Retrives a specific room by its id
 
-| Parameters | Type | Description |
-| ---------- | ---- | ----------- |
-| roomId    | string| String matching the mongo _id field |
+| Parameter | Type | In | Description |
+| --------- | ---- | --- | ----------- |
+| room_id | string | path | String matching the mongo _id field |
 
 Response
+
 `Status: 200 OK`
 
-```
-{}
+```JSON
+{
+  "_id": "507c7f79bcf86cd7994f6c0e",
+  "roomNumber": "110",
+  "floorNumber": 1,
+  "roomType": "Double Queen",
+  "amenities": [
+    "Non-Smoking",
+    "Pool Side",
+    "Mini-Fridge"
+  ],
+  "isClean":true,
+  "isOccupied": true,
+  "currentGuests": [
+    "Bob Palmer",
+    "Alice Palmer",
+    "Bobby Jr Palmer"
+  ],
+  "tasks": [
+    {
+      "_id":"5febcfb988e5d76e417427c6",
+      "taskDescription": "Daily cleaning",
+      "department":"Housekeeping"
+    },
+    {
+      "_id":"5febcfc488e5d76e417427c7",
+      "taskDescription": "Shower needs new caulk",
+      "department":"Maintenance"
+    },
+    ...
+  ]
+},
 ```
 ### List Amenities
 `GET /rooms/amenities` Retrives a list of all room amenities.
 
 Response
+
  `Status: 200 OK`
 
-```
-{
-  'results': [
-    'Fridge'
-    'TV',
-    'Cable,
-    'Kitchen',
-    'Handicapped Accessible Shower',
-    'Hairdryer'
-  ]
-}
+```JSON
+[
+  { 
+    "_id": "5ff90d07450a752b55cbf9fc",
+    "amenity":"Fridge"
+  },
+  { 
+    "_id": "5ff90d07450a752b55cbf9fc",
+    "amenity":"TV"
+  },
+  { 
+    "_id": "5ff90d07450a752b55cbf9fc",
+    "amenity":"Handicapped Shower"
+  },
+  { 
+    "_id": "5ff90d07450a752b55cbf9fc",
+    "amenity":"Non-Smoking"
+  },
+  ...
+]
 ```
 
 ### List Room Types
 `GET /rooms/types` Retrives a list of all room types
 
 Response
+
 `Status: 200 OK`
 
-```
-{
-  'results': [
-    'Single Queen',
-    'Single King',
-    'Double Queen',
-    'Suite'
-  ]
-}
+```JSON
+[
+  {
+    "_id": "5ff8c7b6aa12892093205486",
+    "roomType": "Single Queen",
+    "price": 150.00,
+  },
+  {
+    "_id": "5ff8c7b6aa12892093205486",
+    "roomType": "Single King",
+    "price": 200.00
+  },
+  {
+    "_id": "5ff8c7b6aa12892093205486",
+    "roomType": "Suite",
+    "price": 400.00
+  },
+  {
+    "_id": "5ff8c7b6aa12892093205486",
+    "roomType": "Double Twin",
+    "price": 100.00
+  },
+  ...
+]
+
 ```
 
 ## Reservation Routes
+
 ### Inquire Room Availability
 `GET /reservations/availability/:date` Will return the quantity of available rooms on the supplied date, broken down by room type.
 
+| Parameter | Type | In | Description |
+| --------- | ---- | --- | ----------- |
+| :date | string | path | Date of inquirery as a string in the format "YYYY-MM-DD" |
+
 Response:
+
 `Status: 200 OK`
 
-| Parameter | Type | Description |
-| ---------- | ---- | ----------- |
-| date | string | Date of inquirery as a string in the format "MM-DD-YYYY" |
-
-```
+```JSON
 {
-  "date": "01-10-2020",
+  "date": "2021-11-10",
   "results": [
     {
       "name": "Single Queen",
@@ -196,8 +304,8 @@ Response:
     },
     {
       "name": "Double Queen",
-      "qty": 10,
-      "price": 200.00
+      "qty": 7,
+      "price": 225.00
     },
     ...
   ]
@@ -207,310 +315,422 @@ Response:
 ### List Reservations
 `GET /reservations` Will return a list of reservations matching the search criteria.  By default it will return any reservations that are checking in/out today.
 
-Query Parameters
+Parameters
 
-| Parameter | Type | Description |
-| ---------- | ---- | ----------- |
-|*NOTE: Each additional parameter is treated as an AND operation narrowing the search |
-| guestName | Array | Array containing guest name [firstname, lastName] |
-| checkIn | String | String representation of date in MM-DD-YYYY format |
-| checkOut | String | String representation of date in MM-DD-YYYY format |
-| reservationId | String | String representation of reservation's mongo _id field. (Can be partial id) |
+| Parameter | Type | In | Description |
+| --------- | ---- | --- | ----------- |
+| firstName | string | query | [Optional] First name of someone on the reservation|
+| lastName | string | query | [Optional] Last name of someone on the reservation |
+| checkIn | string | query | [Optional] String representation of date in YYYY-MM-DD format |
+| checkOut | string | query | [Optional] String representation of date in YYYY-MM-DD format |
+| reservation_id | string | query | [Optional] String representation of reservation's mongo _id field. (Can be partial id) |
+
+*NOTE: Each additional parameter is treated as an AND operation narrowing the search*
 
 Response
+
 `Status: 200 OK`
 
-```
-[]
+```JSON
+[
+  {
+    "_id": "5ffa25a6a13f985fdeda9e70",
+    "bookingGuest": "John Smith",
+    "roomNumber": "",
+    "roomType": "Single Queen",
+    "totalCost": 150.00,
+    "checkIn": "2021-10-22",
+    "checkOut": "2021-10-28",
+    "guestList": [
+      "Jane Smith",
+      "Richard Long"
+    ]
+  },
+  {
+    "_id": "60108729ffefc9bae107564c",
+    "bookingGuest": "Soo Yung",
+    "roomNumber": "110",
+    "roomType": "Single Queen",
+    "totalCost": 150.00,
+    "checkIn": "2021-05-03",
+    "checkOut": "2021-05-10",
+    "guestList": [
+      "Soo Yung"
+    ]
+  },
+  ...
+]
 ```
 
 ### Add New Reservation
 `POST /reservations/` Add a new reservation to the database
 
-Body Parameters
+Parameters
 
-| Parameter | Type | Description |
-| ---------- | ---- | ----------- |
-| bookingClient | String | String representation of guest's mongo _id field |
-| guestList | Array | List of names for all guests staying on this reservation |
-| checkIn | String | String representation of date in MM-DD-YYYY format |
-| checkOut | String | String representation of date in MM-DD-YYYY format |
-| bookedRoom | String | Name of the room type being booked |
+| Parameter | Type | In | Description |
+| --------- | ---- | --- | ----------- |
+| bookingGuest_id | string | body | String representation of guest's mongo _id field |
+| guestList | array | body | List of names for all guests staying on this reservation |
+| checkIn | string | body | String representation of date in YYYY-MM-DD format |
+| checkOut | string | body | String representation of date in YYYY-MM-DD format |
+| bookedRoom | string | body | Name of the room type being booked |
 
 Response
-`Status: 201 Created`
 
+`Status: 201 CREATED`
+
+### Check-In A Reservation
+`PUT /reservations/checkIn/:reservation_id` Add a reservation too a room and mark the room as occupied.
+
+Parameters
+
+| Parameter | Type | In | Description |
+| --------- | ---- | --- | ----------- |
+| :reservation_id | string | path | String representation of guest's mongo _id field |
+| room_id | string | body | String representation of room's mongo _id field |
+
+
+Response
+
+`Status: 201 CREATED`
+
+### Check-Out A Reservation
+`PUT /reservations/checkOut/:reservation_id` Removes a reservation from room, marks room vacant and generates a task to clean the room if it doesn't already have a cleaning task today
+
+Parameters
+
+| Parameter | Type | In | Description |
+| --------- | ---- | --- | ----------- |
+| :reservation_id | string | path | String representation of guest's mongo _id field |
+
+Response
+
+`Status: 200 OK`
+
+```JSON
+{
+    "_id": "60108729ffefc9bae107564c",
+    "bookingGuest": "Soo Yung",
+    "roomNumber": "110",
+    "roomType": "Single Queen",
+    "totalCost": 150.00,
+    "checkIn": "2021-05-03",
+    "checkOut": "2021-05-10",
+    "guestList": [
+      "Soo Yung"
+    ]
+  }
 ```
-{New Reservation}
-```
-
-
-### Edit A Reservation
-`PUT /reservations/checkin/:reservationid` Will update the reservation with the room that has been assigned to the checked-in guest, and will mark room as occupied.
-
-Body Parameters
-
-| Parameter | Type | Description |
-| ---------- | ---- | ----------- |
-| room | string | Room number |
-
-Response
-
-Status: 200 Ok
-
-`PUT /reservations/checkout/:reservationid` Will mark room as un-occupied and dirty.
-
-Body Parameters
-
-| Parameter | Type | Description |
-| ---------- | ---- | ----------- |
-| room | string | Room number |
-
-Response
-
-Status: 200 Ok
 
 ## Task Routes
 
 ### List Tasks
-`GET /tasks`  Will return a list of tasks matching the search criteria.
+`GET /tasks`  Returns a list of tasks matching the search criteria. By default all incomplete tasks are returned
+
+Parameters
+
+| Parameter | Type | In | Description |
+| --------- | ---- | --- | ----------- |
+| room_id | string | query | [Optional] String representation of guest's mongo _id field |
+| roomNumber | string | query | [Optional] String of room number |
+| isComplete | boolean | query | [Optional] Default: false |
+| location | string | query | [Optional] String to search for location |
+| dueBy | string | query | [Optional] String representation of date in YYYY-MM-DD format |
+
+*NOTE: Each additional parameter is treated as an AND operation narrowing the search*
+
 
 Response
 
 `Status: 200 OK`
-```
-{
-  'results': [
-    {
-      '_id': 1,
-      'location_id': 2,
-      'employee_completed': 'John Smith',
-      'employee_created': 'Jane Doe',
-      'department': 'Housekeeping',
-      'task_description': 'Clean the dirty spot in this room',
-      'created_at': '2021-02-13 13:44',
-      'due_by': '2021-02-14 10:00',
-      'is_completed': FALSE,
-      'completed_at': '',
-    },
-    {
-      '_id': 2,
-      'location_id:' 1,
-      ..
-    },
+
+```JSON
+[
+  {
+    "task_id": "60108729ffefc9bae107564d",
+    "room_id": "507c7f79bcf86cd7994f6c0e",
+    "roomNumber": "110",
+    "location": "",
+    "employeeCompleted": "John Smith",
+    "employeeCreated": "Jane Doe",
+    "department": "Housekeeping",
+    "taskTitle": "Clean dirty spot",
+    "taskDescription": "Behind the nightstand on the right side of the bed. Don't ask me how a guest got that there.",
+    "createdAt": "2021-02-13T13:44:00.000Z",
+    "dueBy": "2021-02-14T10:00:00.000Z",
+    "isCompleted": true,
+    "completedAt": "2021-02-13T16:15:00.000Z",
+  },
+  {
+    "task_id": 1,
+    "room_id": "",
+    "roomNumber": "",
+    "location": "Pool",
     ...
-  ]
-}
+  },
+  ...
+]
+
 ```
 
 ### Add New Task
-`POST /tasks` Add a new task to the database
+`POST /tasks` Add a new task
 
 Response
-`Status: 201 Created`
+`Status: 201 CREATED`
 
-Body Parameters
+Parameters
 
-| Parameter | Type | Description |
-| ---------- | ---- | ----------- |
-| task_title | String | Title for the Description |
-| room_location | String | Room/Location |
-| task_description | String | Description of the new task |
-| department | String | Selection for which Department this task is for |
+| Parameter | Type | In | Description |
+| --------- | ---- | --- | ----------- |
+| taskTitle | string | body | Title for the Description |
+| taskDescription | string | body | [Optional] Description of the new task |
+| room_id | string | body | [Optional] String representation of mongo _id field |
+| location | string | body | Room number if this is a room or name of location |
+| department | string | body | Selection for which Department this task is for (Maintenance or Housekeeping) |
+| dueBy | string | body | [Optional] String of timestamp in ISO format |
 
-```
-{New Task}
+*NOTE: Each additional parameter is treated as an AND operation narrowing the search*
+
+
+```JSON
+{
+  "task_id": "60108729ffefc9bae107564d",
+  "room_id": "507c7f79bcf86cd7994f6c0e",
+  "roomNumber": "110",
+  "location": "",
+  "employeeCompleted": "",
+  "employeeCreated": "Jane Doe",
+  "department": "Housekeeping",
+  "taskTitle": "Clean dirty spot",
+  "taskDescription": "Behind the nightstand on the right side of the bed. Don't ask me how a guest got that there.",
+  "createdAt": "2021-02-13T13:44:00.000Z",
+  "dueBy": "2021-02-14T10:00:00.000Z",
+  "isCompleted": false,
+  "completedAt": "",
+}
 ```
 
 ### Edit Task
-`PUT /tasks/:task_id` Will update the task with any fields the user wants to edit
-
-Body Parameters
-
-| Parameter | Type | Description |
-| ---------- | ---- | ----------- |
-| room | string | Room number |
+`PUT /tasks/:task_id` Will update the task with matching _id with any fields supplied in the body
 
 Response
 
-Status: 200 Ok
+`Status: 200 OK`
 
-### List Locations
+Parameters
 
-### Add New Location
+| Parameter | Type | In | Description |
+| --------- | ---- | --- | ----------- |
+| task_id | string | path | String representation of mongo _id |
+| taskTitle | string | body | [Optional] Title for the task |
+| taskDescription | string | body | [Optional] Description of the new task |
+| location | string | body | [Optional] Room number or name of location |
+| department | string | body | [Optional] Selection for which Department this task is for |
 
 ## Employee Routes
 
 ### List Employees
-`GET /employees` Will return a list of employees.
+`GET /employees` Will return a list of all employees.
+
+| Parameter | Type | In | Description |
+| --------- | ---- | --- | ----------- |
+| searchName | string | query | [Optional] String to match seaching for employee name |
+| isActive | boolean | query | [Optional] Default: true |
+
 
 Response
 
 `Status: 200 OK`
-```
-{
-  'results': [
-    {
-      '_id': 1,
-      'fistName': 'John',
-      'lastName': 'Smith',
-      'address1': '123 Hackreactor Rd',
-      'address2',
-      'city': 'New York',
-      'state': 'NY',
-      'zipcode': 10002,
-      'country': 'United States',
-      'phone': 123-456-7890,
-      'email': 'jsmith@gmail.com',
-      'wage': 15.00,
-      'startDate': '2021-02-13',
-      'jobDescription': 'Front Desk'
-    },
-    {
-      '_id': 2,
-      'firstName': 'Jane',
-      'lastName': 'Doe',
-      'address1': '...',
-    },
+
+```JSON
+[
+  {
+    "_id": "60108729ffefc9bae107564e",
+    "fistName": "John",
+    "lastName": "Smith",
+    "address1": "123 Hackreactor Rd",
+    "address2": "",
+    "city": "New York",
+    "state": "NY",
+    "zipcode": 10002,
+    "country": "United States",
+    "phone": "123-456-7890",
+    "email": "jsmith@gmail.com",
+    "wage": 15.00,
+    "startDate": "2021-02-13",
+    "position": "Front Desk",
+    "weekHours": 30,
+    "isActive": true
+  },
+  {
+    "_id": 2,
+    "firstName": "Jane",
+    "lastName": "Doe",
+    "address1": "456 Generic PL"
     ...
-  ]
-}
+  },
+  ...
+]
+
 ```
 
 ### Get Specific Employee
-`GET /employees/:id` Will return a single employee.
+`GET /employees/:employee_id` Will return a single employee
 
 Path Variable
 
-| Parameter | Type | Description |
-| ---------- | ---- | ----------- |
-| id | Number | employee unique id |
+| Parameter | Type | In | Description |
+| --------- | ---- | --- | ----------- |
+| employee_id | string | path | String representation of mongo _id |
 
 Response
 
 `Status: 200 OK`
-```
+
+```JSON
 {
-  results: {
-    '_id': 1,
-    'fistName': 'John',
-    'lastName': 'Smith',
-    'address1': '123 Hackreactor Rd',
-    'address2',
-    'city': 'New York',
-    'state': 'NY',
-    'zipcode': 10002,
-    'country': 'United States',
-    'phone': 123-456-7890,
-    'email': 'jsmith@gmail.com',
-    'wage': 15.00,
-    'startDate': '2021-02-13',
-    'jobDescription': 'Front Desk'
-  }
+  "_id": "60108729ffefc9bae107564e",
+  "fistName": "John",
+  "lastName": "Smith",
+  "address1": "123 Hackreactor Rd",
+  "address2": "Apt 2",
+  "city": "New York",
+  "state": "NY",
+  "zipcode": 10002,
+  "country": "United States",
+  "phone": "123-456-7890",
+  "email": "jsmith@gmail.com",
+  "wage": 15.00,
+  "startDate": "2021-02-13",
+  "position": "Front Desk",
+  "weekHours": 30,
+  "isActive": true
 }
 ```
 
 
 ### Add New Employee
-`POST /employees` Will create a new employee.
+`POST /employees` Will create a new employee
 
 Body Parameter
 
-| Parameter | Type | Description |
-| ---------- | ---- | ----------- |
-| firstName | String | String of the employee's first name |
-| lastName | String | String of the employee's last name |
-| address1 | String | String of the employee's address |
-| address2 | String | [Optional] String of the employee's address 2 |
-| city | String | String of the employee's city |
-| state | String | String of the employee's adress state |
-| zipcode | String | String of the employee's zipcode |
-| wage | Number | Number of the employee's hourly wage |
-| startDate | String | String of the employee's Start date as employee as a string in the format "MM-DD-YYYY") |
-| username | String | String of the employee's username |
-| password | String | String of the employee's password |
-| jobDescription | String | String of the employee's job description (reference the official list of possibe job descriptions below
-
-Response
-
-`Status: 201 OK`
-
-### Edit Employee
-`PUT /employees` Will edit an existing employee.
-
-Body Parameter
-
-| Parameter | Type | Description |
-| ---------- | ---- | ----------- |
-| firstName | String |[Optional] String of the employee's first name |
-| lastName | String | [Optional]String of the employee's last name |
-| address1 | String | [Optional] String of the employee's address |
-| [address2] | String | [Optional] String of the employee's address 2 |
-| city | String | [Optional] String of the employee's city |
-| state | String | [Optional] String of the employee's adress state |
-| zipcode | String | [Optional] String of the employee's zipcode |
-| wage | Number | [Optional] Number of the employee's hourly wage |
-| startDate | String | [Optional] String of the employee's Start date as employee as a string in the format "MM-DD-YYYY") |
-| username | String | [Optional] String of the employee's username |
-| password | String | [Optional] String of the employee's password |
-| jobDescription | String | [Optional] String of the employee's job description (reference the official list of possibe job descriptions below
-
-Response
-
-`Status: 204 OK`
-
-### List Employee Types
-`GET /employees/types` Will get list of employee types.
+| Parameter | Type | In | Description |
+| --------- | ---- | --- | ----------- |
+| firstName | string | body | String of the employee's first name |
+| lastName | string | body | String of the employee's last name |
+| address1 | string | body | String of the employee's address |
+| address2 | string | body | [Optional] String of the employee's address 2 |
+| city | string | body | String of the employee's city |
+| state | string | body | String of the employee's adress state |
+| zipcode | string | body | String of the employee's zipcode |
+| wage | number | body | Number of the employee's hourly wage |
+| startDate | string | body | String of the employee's start date in the format "YYYY-MM-DD") |
+| username | string | body | String of the employee's username |
+| position | string | body | String of the employee's position (reference official list) |
 
 Response
 
 `Status: 200 OK`
-```
+
+```JSON
 {
-  'results': [
-    'Front Desk',
-    'Housekeeping',
-    'Maintenance',
-    'Management',
-    'System Administration'
-  ]
+  "_id": "60108729ffefc9bae107564e",
+  "fistName": "John",
+  "lastName": "Smith",
+  "address1": "123 Hackreactor Rd",
+  "address2": "Apt 2",
+  "city": "New York",
+  "state": "NY",
+  "zipcode": 10002,
+  "country": "United States",
+  "phone": "123-456-7890",
+  "email": "jsmith@gmail.com",
+  "wage": 15.00,
+  "startDate": "2021-02-13",
+  "position": "Front Desk",
+  "weekHours": 0,
+  "isActive": true
 }
 ```
 
-### Add Employee Type
-`POST /employees/types` Will add a new employee type.
+### Edit Employee
+`PUT /employees/:employee_id` Will edit an existing employee
 
-Body Parameters
+Body Parameter
 
-| Parameter | Type | Description |
-| ---------- | ---- | ----------- |
-| type | String | String of new employee type |
-
-
-`Status: 201 OK`
+| Parameter | Type | In | Description |
+| --------- | ---- | --- | ----------- |
+| employee_id | string | path | String representation of mongo _id |
+| firstName | string | body |[Optional] String of the employee's first name |
+| lastName | string | body | [Optional]String of the employee's last name |
+| address1 | string | body | [Optional] String of the employee's address |
+| address2 | string | body | [Optional] String of the employee's address 2 |
+| city | string | body | [Optional] String of the employee's city |
+| state | string | body | [Optional] String of the employee's adress state |
+| zipcode | string | body | [Optional] String of the employee's zipcode |
+| wage | number | body | [Optional] Number of the employee's hourly wage |
+| startDate | string | body | [Optional] String of the employee's start date in the format "YYYY-MM-DD" |
+| username | string | body | [Optional] String of the employee's username |
+| password | string | body | [Optional] String of the employee's password |
+| position | string | body | [Optional] String of the employee's position (reference official list) |
 
 Response
+
+`Status: 201 CREATED`
+
+<!-- Left off Here -->
+### List Employee Positions
+`GET /employees/positions` Will get list of employee types.
+
+Response
+
+`Status: 200 OK`
+
+```JSON
+[
+  "Front Desk",
+  "Housekeeping",
+  "Maintenance",
+  "Management",
+  "System Administration"
+]
 ```
-{}
+
+### Add Employee Position
+`POST /employees/positions` Will add a new employee position.
+
+Parameters
+
+| Parameter | Type | In | Description |
+| --------- | ---- | --- | ----------- |
+| type | string | body | String of new employee type |
+
+
+Response
+
+`Status: 201 CREATED`
+
+```JSON
+{
+  "_id":"60108729ffefc9bae107564f",
+  "position": "Front Desk",
+}
 ```
 
 ### Edit Employee Type
-`PUT /employees/types` Will edit an existing employee's type.A
+`PUT /employees/positions/:position_id` Will edit an existing employee position.
 
-Body Parameters
+Parameters
 
-| Parameter | Type | Description |
-| ---------- | ---- | ----------- |
-| id | Number | Employee's unique id |
-| type | String | String of new 'Employee Type' |
-
-
-`Status: 204 OK`
+| Parameter | Type | In | Description |
+| --------- | ---- | --- | ----------- |
+| position_id | string | path | String representation of employee's unique mongo _id |
+| position | string | body | Position name to replace previous name |
 
 Response
-```
-{}
-```
+
+`Status: 204 OK`
 
 ## Timesheets
 
@@ -518,31 +738,31 @@ Response
 ### List Timesheets
 `GET /timesheets` Will return a list of timesheets for all hotel employees.
 
+Response
+
 `Status: 200 OK`.
 
-Response
-```
-{
-  'results': [
+```JSON
+[
     {
-      '_id': 1,
-      'employeeId': 1,
-      'monday': 8,
-      'tuesday': 7,
-      'wednesday': 8,
-      'thursday': 5,
-      'friday': '9',
-      'saturday': 0,
-      'sunday': '0
+      "_id": 1,
+      "employeeId": 1,
+      "monday": 8,
+      "tuesday": 7,
+      "wednesday": 8,
+      "thursday": 5,
+      "friday": 9,
+      "saturday": 0,
+      "sunday": 0
     },
     {
-      '_id': 2,
-      'employeeId': 1,
-      ..
+      "_id": 2,
+      "employeeId": 1,
+      ...
     },
     ...
-  ]
-}
+]
+
 ```
 
 ### Get Employees Current Timesheet
@@ -550,24 +770,24 @@ Response
 
 `Status: 200 OK`.
 
-| Parameter | Type | Description |
-| ---------- | ---- | ----------- |
-| employeeId | Number | employee's unique id
+| Parameter | Type | In | Description |
+| --------- | ---- | --- | ----------- |
+| employeeId | number |  | employee's unique id
 
 
 Response
-```
+```JSON
 {
-  'results': {
-      '_id': 1,
-      'employeeId': 1,
-      'monday': 8,
-      'tuesday': 7,
-      'wednesday': 8,
-      'thursday': 5,
-      'friday': '9',
-      'saturday': 0,
-      'sunday': '0
+  "results": {
+      "_id": 1,
+      "employeeId": 1,
+      "monday": 8,
+      "tuesday": 7,
+      "wednesday": 8,
+      "thursday": 5,
+      "friday": "9",
+      "saturday": 0,
+      "sunday": "0
     }
 }
 ```
@@ -578,18 +798,18 @@ Response
 
 `Status: 200 OK`.
 
-| Parameter | Type | Description |
-| ---------- | ---- | ----------- |
-| employeeId | Number | employee's unique id |
-| monday | Number | Total hours the employee worked on Monday |
-| tuesday | Number | Total hours the employee worked on Tuesday |
-| wednesday | Number | Total hours the employee worked on Wednesday |
-| thursday | Number | Total hours the employee worked on Thursday |
-| friday | Number | Total hours the employee worked on Friday |
-| saturday | Number | Total hours the employee worked on Saturday |
-| sunday | Number | Total hours the employee worked on Sunday |
+| Parameter | Type | In | Description |
+| --------- | ---- | --- | ----------- |
+| employeeId | number |  | employee's unique id |
+| monday | number |  | Total hours the employee worked on Monday |
+| tuesday | number |  | Total hours the employee worked on Tuesday |
+| wednesday | number |  | Total hours the employee worked on Wednesday |
+| thursday | number |  | Total hours the employee worked on Thursday |
+| friday | number |  | Total hours the employee worked on Friday |
+| saturday | number |  | Total hours the employee worked on Saturday |
+| sunday | number |  | Total hours the employee worked on Sunday |
 
 Response
-```
+```JSON
 {}
 ```
