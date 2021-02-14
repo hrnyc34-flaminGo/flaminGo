@@ -686,14 +686,16 @@ Body Parameter
 | wage | number | body | [Optional] Number of the employee's hourly wage |
 | startDate | string | body | [Optional] String of the employee's start date in the format "YYYY-MM-DD" |
 | username | string | body | [Optional] String of the employee's username |
-| password | string | body | [Optional] String of the employee's password |
 | position | string | body | [Optional] String of the employee's position (reference official list) |
 
 Response
 
 `Status: 201 CREATED`
 
-<!-- Left off Here -->
+<!-- 
+** After some thought last night I don't think we need to be able to add/edit employee positions.  We can just hard code the values in the front end as constants that can be referenced for dropdown menus. - Colin 
+**
+
 ### List Employee Positions
 `GET /employees/positions` Will get list of employee types.
 
@@ -730,7 +732,7 @@ Response
   "_id":"60108729ffefc9bae107564f",
   "position": "Front Desk",
 }
-```
+``` 
 
 ### Edit Employee Type
 `PUT /employees/positions/:position_id` Will edit an existing employee position.
@@ -745,8 +747,12 @@ Parameters
 Response
 
 `Status: 204 OK`
+-->
 
 ## Timesheets
+
+<!-- 
+** I dont think we need this one for MVP, we just need a list of timesheets for a specific employee - Colin **
 
 
 ### List Timesheets
@@ -759,71 +765,99 @@ Response
 ```JSON
 [
     {
-      "_id": 1,
-      "employeeId": 1,
+      "timesheet_id": "60108729ffefc9bae1075652",
+      "employee_id": "60108729ffefc9bae1075651",
       "monday": 8,
       "tuesday": 7,
       "wednesday": 8,
       "thursday": 5,
       "friday": 9,
       "saturday": 0,
-      "sunday": 0
+      "sunday": 0,
+      "weekStart": "2021-02-08",
+      "weekEnd": "2021-02-14"
     },
     {
-      "_id": 2,
-      "employeeId": 1,
+      "timesheet_id": "60108729ffefc9bae1075653",
+      "employee_id": "60108729ffefc9bae1075654",
       ...
     },
     ...
 ]
 
 ```
+-->
 
-### Get Employees Current Timesheet
-`GET /timesheets/:id` Will return a lsit of timesheets for a specific employee based on their unique id
+### Get Employee's Timesheet
+`GET /timesheets/:employee_id` Returns a list of timesheets for a specific employee based on their unique id.  Results are sorted with the most recent first
 
-`Status: 200 OK`.
+Parameters
 
 | Parameter | Type | In | Description |
 | --------- | ---- | --- | ----------- |
-| employeeId | number |  | employee's unique id
+| employee_id | string | path | String representation of employee's unique mongo _id |
+| count | number | query | The number or results to return. Default is 0 which returns all results |
+
+Response
+
+`Status: 200 OK`
+
+| Parameter | Type | In | Description |
+| --------- | ---- | --- | ----------- |
+| employee_id | string | path | String representation of mongo _id field |
 
 
 Response
 ```JSON
 {
-  "results": {
-      "_id": 1,
-      "employeeId": 1,
-      "monday": 8,
-      "tuesday": 7,
-      "wednesday": 8,
-      "thursday": 5,
-      "friday": "9",
-      "saturday": 0,
-      "sunday": "0
-    }
+  "timesheet_id": "60108729ffefc9bae1075652",
+  "employee_id": "60108729ffefc9bae1075651",
+  "monday": 8,
+  "tuesday": 7,
+  "wednesday": 8,
+  "thursday": 5,
+  "friday": 9,
+  "saturday": 0,
+  "sunday": 0,
+  "weekStart": "2021-02-08",
+  "weekEnd": "2021-02-14"
 }
+
 ```
 
 
-### Edit Employees Current Timesheet
-`PUT /timesheets/:id` Will update or edit the current employee's timesheet
+### Edit A Timesheet
+`PUT /timesheets/:timesheet_id` Will update the timesheet with corresponding id
 
-`Status: 200 OK`.
+`Status: 200 OK`
 
 | Parameter | Type | In | Description |
 | --------- | ---- | --- | ----------- |
-| employeeId | number |  | employee's unique id |
-| monday | number |  | Total hours the employee worked on Monday |
-| tuesday | number |  | Total hours the employee worked on Tuesday |
-| wednesday | number |  | Total hours the employee worked on Wednesday |
-| thursday | number |  | Total hours the employee worked on Thursday |
-| friday | number |  | Total hours the employee worked on Friday |
-| saturday | number |  | Total hours the employee worked on Saturday |
-| sunday | number |  | Total hours the employee worked on Sunday |
+| timesheet_id | string | path | String representation of mongo _id field |
+| monday | number | body | Total hours the employee worked on Monday |
+| tuesday | number | body | Total hours the employee worked on Tuesday |
+| wednesday | number | body | Total hours the employee worked on Wednesday |
+| thursday | number | body | Total hours the employee worked on Thursday |
+| friday | number | body | Total hours the employee worked on Friday |
+| saturday | number | body | Total hours the employee worked on Saturday |
+| sunday | number | body | Total hours the employee worked on Sunday |
 
 Response
+
+`Status: 200 OK`
+
 ```JSON
-{}
+{
+  "timesheet_id": "60108729ffefc9bae1075652",
+  "employee_id": "60108729ffefc9bae1075651",
+  "monday": 8,
+  "tuesday": 7,
+  "wednesday": 8,
+  "thursday": 5,
+  "friday": 9,
+  "saturday": 0,
+  "sunday": 0,
+  "weekStart": "2021-02-08",
+  "weekEnd": "2021-02-14"
+}
 ```
